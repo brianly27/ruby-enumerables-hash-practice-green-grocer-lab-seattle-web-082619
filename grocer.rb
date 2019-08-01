@@ -16,26 +16,47 @@ def consolidate_cart(cart)
 end #consolidate_cart
 
 
+# def apply_coupons(cart, coupons)
+#
+#   coupons.each do |coupon_hash|
+#     coupon_hash.each do |attribute, value|
+#       item = coupon_hash[:item]
+#
+#       if cart[item] && cart[item][:count] >= coupon_hash[:num]
+#
+#         if cart["#{item} W/COUPON"]
+#           cart["#{item} W/COUPON"][:count] += coupon_hash[:num]
+#         else
+#           cart["#{item} W/COUPON"] = {
+#             :clearance => cart[item][:clearance], :count => coupon_hash[:num], :price => (coupon_hash[:cost] / coupon_hash[:num])
+#           }
+#         end #if
+#
+#         cart[item][:count] -= coupon_hash[:num]
+#       end #if
+#     end #coupon_hash.each
+#   end #coupons.each
+#   cart
+# end
+
 def apply_coupons(cart, coupons)
 
-  coupons.each do |coupon_hash|
-    coupon_hash.each do |attribute, value|
-      item = coupon_hash[:item]
+  coupons.each do |coupon|
+    coupon.each do |attribute, value|
+      name = coupon[:item].to_s
 
-      if cart[item] && cart[item][:count] >= coupon_hash[:num]
-
-        if cart["#{item} W/COUPON"]
-          cart["#{item} W/COUPON"][:count] += coupon_hash[:num]
+      if cart[name] && cart[name][:count] >= coupon[:num]
+        if cart["#{name} W/COUPON"]
+          cart["#{name} W/COUPON"][:count] += 1
         else
-          cart["#{item} W/COUPON"] = {
-            :clearance => cart[item][:clearance], :count => coupon_hash[:num], :price => (coupon_hash[:cost] / coupon_hash[:num])
-          }
-        end #if
+          cart["#{name} W/COUPON"] = {:price => coupon[:cost],
+          :clearance => cart[name][:clearance], :count => 1}
+        end
 
-        cart[item][:count] -= coupon_hash[:num]
-      end #if
-    end #coupon_hash.each
-  end #coupons.each
+      cart[name][:count] -= coupon[:num]
+    end
+  end
+end
   cart
 end
 
@@ -58,13 +79,17 @@ def checkout(cart, coupons)
   cart3 = apply_clearance(cart2)
 
   cart3.reduce(total) do |memo, (key, values)|
-
+    #used binding.pry to test the value of memo and the value of total
     total += (values[:price] * values[:count])
     memo
   end #cart.reduce
 
+    #used binding.pry to test the value of total and the value of cart
   if total >= 100
     total = (total * 0.9).round(2)
   end #if
+
+
+
   return total
 end

@@ -41,23 +41,32 @@ end #consolidate_cart
 
 def apply_coupons(cart, coupons)
 
-  coupons.each do |coupon|
-    coupon.each do |attribute, value|
-      name = coupon[:item].to_s
+  coupons.each do |coupon|  #going into iteration over the array
+    coupon.each do |attribute, value|  #going into the hash within the array
+      name = coupon[:item].to_s  #variable name for coupon[:item] to make it easier to see what im doing
 
       if cart[name] && cart[name][:count] >= coupon[:num]
+        # if the cart name and the count is greater or equal to the coupons requirement
         if cart["#{name} W/COUPON"]
-          cart["#{name} W/COUPON"][:count] += 1
+          #initialize hash key with coupon then add to it
+          item_with_coupon = "#{name} W/COUPON"
+          cart[item_with_coupon] = cart[name].dup
+
+          cart[name][:count] -= coupon[:num]
+          #price / number
+         cart[item_with_coupon][:price] = coupon[:cost]/coupon[:num]
+          cart["#{name} W/COUPON"][:count] = coupon[:num]
+
         else
           cart["#{name} W/COUPON"] = {:price => coupon[:cost],
           :clearance => cart[name][:clearance], :count => 1}
+          # else, a coupon has not been applied, first time applying it.
         end
-
-      cart[name][:count] -= coupon[:num]
     end
   end
 end
   cart
+  # return the cart
 end
 
 def apply_clearance(cart)
